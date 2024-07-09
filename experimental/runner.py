@@ -18,18 +18,18 @@ class Runner:
             assert actions.shape == (n_actions, action_size, 1)
 
     def perform_simulations(self):
-        all_actions = np.zeros((self.n_trials, self.horizon, self.action_size))
+        all_errors = np.zeros((self.n_trials, self.horizon))
         for sim_i in tqdm(range(self.n_trials)):
             print("Simulation ", sim_i)
             self.environment.reset(sim_i)
             self.agent.reset()
-            action_vect = self._run_simulation()
-            assert action_vect.shape == (self.horizon, self.action_size)
-            all_actions[sim_i, :, :] = action_vect
-        return all_actions
+            error_vect = self._run_simulation()
+            assert error_vect.shape == (self.horizon,)
+            all_errors[sim_i, :] = error_vect
+        return all_errors
 
     def _run_simulation(self):
-        action_vect = np.zeros((self.horizon, self.action_size))
+        error_vect = np.zeros(self.horizon)
         for t in range(self.horizon):
             print("Time ", t)
             action = self.agent.pull_arm()
@@ -46,8 +46,5 @@ class Runner:
                 self.agent.update(error[0, 0])
             else:
                 self.agent.update(error)
-            if isinstance(action, np.ndarray):
-                action_vect[t, :] = action.ravel()
-            else:
-                action_vect[t, :] = self.actions[action, :]
-        return action_vect
+            error_vect[t] = error
+        return error_vect

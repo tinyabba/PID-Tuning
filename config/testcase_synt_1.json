@@ -39,6 +39,6 @@
     ],
     
     "horizon": 100,
-    "n_trials": 3,
+    "n_trials": 10,
     "noise_sigma": 0.001
 }
