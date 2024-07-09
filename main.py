@@ -128,9 +128,23 @@ errors[pidtuning] = runner.perform_simulations()
 inst_regret = np.zeros((n_trials, horizon))
 cum_regret = np.zeros((n_trials, horizon))
 
-inst_regret = errors[optimal]**2 - errors[pidtuning]**2
+inst_regret =  errors[pidtuning]**2 - errors[optimal]**2
 cum_regret = np.cumsum(inst_regret, axis=1)
 cum_regret_mean = np.mean(cum_regret, axis=0)
 cum_regret_std = np.std(cum_regret, axis=0) / np.sqrt(n_trials)
-print(np.shape(cum_regret_mean))
+
+
+#Plotting
+plt.figure(figsize=(10, 6))
+plt.plot(cum_regret_mean, label='Cumulative Regret')
+plt.fill_between(range(len(cum_regret_mean)), 
+                 cum_regret_mean - cum_regret_std, 
+                 cum_regret_mean + cum_regret_std, 
+                 color='b', alpha=0.2, label='Standard Error')
+
+plt.xlabel('Time Horizon')
+plt.ylabel('Cumulative Regret')
+plt.legend()
+plt.grid(True)
+plt.show()
 
