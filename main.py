@@ -41,11 +41,13 @@ c = np.array(param_dict['C'])
 #Print system info
 #utils.system_info(A, b, c)
 
+
 optimal = "optimal"
 pidtuning = "pidtuning"
 alg_list = [optimal, pidtuning]
 
 errors = {alg: np.zeros((n_trials, horizon)) for alg in alg_list}
+
 
 #Define noises
 np.random.seed(1)
@@ -89,7 +91,7 @@ for K in pid_actions:
 
 spectral_rad_bar_ub = max(np.array(spectral_rad_list))
 bar_A = utils.compute_bar_a(A, b, c, pid_actions[np.argmax(np.array(spectral_rad_list))])
-phi_bar_a_ub = utils.spectr(bar_A)
+phi_bar_a_ub = utils.spectr(bar_A) 
 
 
 #Build environment
@@ -131,7 +133,7 @@ cum_regret = np.zeros((n_trials, horizon))
 inst_regret =  errors[pidtuning]**2 - errors[optimal]**2
 cum_regret = np.cumsum(inst_regret, axis=1)
 cum_regret_mean = np.mean(cum_regret, axis=0)
-cum_regret_std = np.std(cum_regret, axis=0) / np.sqrt(n_trials)
+cum_regret_std = np.std(cum_regret, axis=0) / np.sqrt(n_trials) 
 
 
 #Plotting
@@ -144,6 +146,7 @@ plt.fill_between(range(len(cum_regret_mean)),
 
 plt.xlabel('Time Horizon')
 plt.ylabel('Cumulative Regret')
+plt.axis('equal')
 plt.legend()
 plt.grid(True)
 plt.show()

@@ -41,7 +41,7 @@ class PIDTuningAgent(Agent):
         assert lmbd > 0 and spectral_rad_ub < 1 and spectral_rad_bar_ub < 1
         assert actions.shape == (n_arms, 3, 1)
         self.H = np.log(horizon)/np.log(1/spectral_rad_bar_ub)
-        _, self.features_dim = self._features_mapping_dimension()
+        self.powers, self.features_dim = self._features_mapping_dimension()
         self.features_dim += 1
         self.actions = actions
         self.horizon = horizon
@@ -78,11 +78,14 @@ class PIDTuningAgent(Agent):
             self.t_estimate = np.linspace(0, horizon - 1, horizon, dtype=int)
         else:
             self.t_estimate = []
-            M = math.floor(self.horizon/self.H)             
-            for m in range(M):
-                self.t_estimate.append(m*math.floor(self.H))
+            t_estimate = 0
+            m = 1            
+            while(t_estimate < self.horizon):
+                self.t_estimate.append(t_estimate)
+                t_estimate = m*math.floor(self.H)
+                m += 1
             self.t_estimate.append(0)
-        self.t_newaction = list(np.array(self.t_estimate) + 1)                  
+        self.t_newaction = list(np.array(self.t_estimate) + 1)           
 
         self.reset()
         
@@ -121,11 +124,9 @@ class PIDTuningAgent(Agent):
         return powers, len(powers)  
 
 
-    def _features_mapping(self, K):
-        powers, _ = self._features_mapping_dimension()    
-
+    def _features_mapping(self, K):   
         mapping = [1]
-        for p in powers:
+        for p in self.powers:
             mapping.append(K[0][0]**p[0] * K[1][0]**p[1] * K[2][0]**p[2])
 
         mapping = np.array(mapping)
