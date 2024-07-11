@@ -62,8 +62,8 @@ class PIDTuningAgent(Agent):
         self.phi_a_bar_ub = phi_a_bar_ub
         self.b_bar_ub = np.sqrt(K_ub**2*b_ub**2 + 2)
         self.c_bar_ub = c_ub
-        self.theta_vect_ub = self.c_bar_ub**self.H * self.b_bar_ub**self.H *\
-                             self.phi_a_bar_ub * self.spectral_rad_bar_ub**self.H               
+        self.theta_vect_ub = self.c_bar_ub**(self.H) * self.b_bar_ub**(self.H) *\
+                             self.phi_a_bar_ub * self.spectral_rad_bar_ub**(self.H)               
         self.features_vect_ub = np.sqrt(1 + self.features_dim*K_ub**(4*self.H))
         self.x_bar_ub = (self.b_bar_ub*self.y0_ub + self.b_bar_ub*self.noise_ub +\
                           self.noise_ub)/(1 - self.spectral_rad_bar_ub)
@@ -73,13 +73,14 @@ class PIDTuningAgent(Agent):
                            2*y0_ub**2 + 2*y0_ub*noise_ub + noise_ub**2 + sigma**2
         
         self.last_mapping = None
+        self.obj_fun = None
 
         if spectral_rad_ub < epsilon:
             self.t_estimate = np.linspace(0, horizon - 1, horizon, dtype=int)
         else:
             self.t_estimate = []
-            t_estimate = 0
-            m = 1            
+            t_estimate = math.floor(self.H)
+            m = 2            
             while(t_estimate < self.horizon):
                 self.t_estimate.append(t_estimate)
                 t_estimate = m*math.floor(self.H)
