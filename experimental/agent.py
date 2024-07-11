@@ -73,7 +73,6 @@ class PIDTuningAgent(Agent):
                            2*y0_ub**2 + 2*y0_ub*noise_ub + noise_ub**2 + sigma**2
         
         self.last_mapping = None
-        self.obj_fun = None
 
         if spectral_rad_ub < epsilon:
             self.t_estimate = np.linspace(0, horizon - 1, horizon, dtype=int)
@@ -93,9 +92,9 @@ class PIDTuningAgent(Agent):
 
     def reset(self):
         super().reset()
-        self.V_t = self.lmbd * np.eye(math.floor(self.features_dim))            
-        self.b_vect = np.zeros((math.floor(self.features_dim), 1))              
-        self.hat_theta_vect = np.zeros((math.floor(self.features_dim), 1))      
+        self.V_t = self.lmbd * np.eye(self.features_dim)            
+        self.b_vect = np.zeros((self.features_dim, 1))              
+        self.hat_theta_vect = np.zeros((self.features_dim, 1))   
         self.first = True
         self.newaction_vect_idx = 0
         self.estimate_vect_idx = 0
@@ -147,7 +146,7 @@ class PIDTuningAgent(Agent):
     def _beta_t_fun_pidtuning(self):
         return self.theta_vect_ub * np.sqrt(self.lmbd) + \
                np.sqrt(
-                   2 * self.x_bar_ub**2 * (
+                   2 * self.noise_xi_ub**2 * (
                            np.log(self.horizon) + (self.features_dim / 2) *
                            np.log(1 + (self.t * (self.features_vect_ub ** 2)) / (
                                    self.features_dim * self.lmbd))

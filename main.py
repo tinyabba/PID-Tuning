@@ -79,8 +79,16 @@ b_val = np.linalg.norm(b, 2)
 c_val = np.linalg.norm(c, 2)
 spectral_rad_ub = max(np.linalg.eigvals(A))
 phi_a_ub = utils.spectr(A)
-noise_ub = sigma*np.sqrt(2*np.log(1/0.01))
 y_0 = 1
+
+
+#Upper bound for noise
+noise_norm = []
+for trial_i in range(n_trials):
+    for t in range(horizon):
+        noise_norm.append(np.linalg.norm(noise[trial_i, t, :]))
+        noise_norm.append(np.linalg.norm(out_noise[trial_i, t, :]))
+noise_ub = max(np.array(noise_norm))
 
 
 #Upper bound for spectral radius of matrix bar_A
@@ -131,7 +139,8 @@ inst_regret = np.zeros((n_trials, horizon))
 cum_regret = np.zeros((n_trials, horizon))
 
 inst_regret =  errors[pidtuning]**2 - errors[optimal]**2
-cum_regret = np.cumsum(inst_regret, axis=1)
+for trial_i in range(n_trials):
+    cum_regret[trial_i] = np.cumsum(inst_regret[trial_i])
 cum_regret_mean = np.mean(cum_regret, axis=0)
 cum_regret_std = np.std(cum_regret, axis=0) / np.sqrt(n_trials) 
 
