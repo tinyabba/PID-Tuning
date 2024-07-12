@@ -65,11 +65,13 @@ K_D_range = np.linspace(0.01, 1.0, 10)
 pid_actions = []
 for K in list(itertools.product(K_P_range, K_I_range, K_D_range)):
     bar_A = utils.compute_bar_a(A, b, c, K)
-    if (max(np.linalg.eigvals(bar_A)) < 1):
+    if (np.max(np.absolute(np.linalg.eigvals(bar_A))) < 1): 
+        print()
         pid_actions.append(np.array(K).reshape(3,1))
 
 pid_actions = np.array(pid_actions)
-n_arms = pid_actions.shape[0]         
+n_arms = pid_actions.shape[0]
+print(n_arms)
 
 
 #Upper bound for relevant quantities
@@ -95,11 +97,11 @@ noise_ub = max(np.array(noise_norm))
 spectral_rad_list = []
 for K in pid_actions:
     bar_A = utils.compute_bar_a(A, b, c, K)
-    spectral_rad_list.append(max(np.linalg.eigvals(bar_A)))
+    spectral_rad_list.append(np.max(np.absolute(np.linalg.eigvals(bar_A))))
 
-spectral_rad_bar_ub = max(np.array(spectral_rad_list))
+spectral_rad_bar_ub = np.max(np.array(spectral_rad_list))
 bar_A = utils.compute_bar_a(A, b, c, pid_actions[np.argmax(np.array(spectral_rad_list))])
-phi_bar_a_ub = utils.spectr(bar_A) 
+phi_bar_a_ub = utils.spectr(bar_A)
 
 
 #Build environment
@@ -127,7 +129,7 @@ for trial_i in range(n_trials):
 #Running PIDTuning
 agent = PIDTuningAgent(n_arms, pid_actions, horizon,
                             np.log(horizon), b_val, c_val, K_val, phi_a_ub, phi_bar_a_ub, y_0,
-                            spectral_rad_ub, 0.5, noise_ub, sigma)
+                            spectral_rad_ub, 0.7, noise_ub, sigma)
 env = PIDTuningEnvironment(A, b, c, n, p, m, y_0, horizon, noise, out_noise, n_trials)
 print('Running PID Tuning')
 runner = Runner(env, agent, n_trials, horizon, 3, n_arms, pid_actions)
@@ -142,7 +144,7 @@ inst_regret =  errors[pidtuning]**2 - errors[optimal]**2
 for trial_i in range(n_trials):
     cum_regret[trial_i] = np.cumsum(inst_regret[trial_i])
 cum_regret_mean = np.mean(cum_regret, axis=0)
-cum_regret_std = np.std(cum_regret, axis=0) / np.sqrt(n_trials) 
+cum_regret_std = np.std(cum_regret, axis=0) / np.sqrt(n_trials)
 
 
 #Plotting
@@ -159,4 +161,3 @@ plt.axis('equal')
 plt.legend()
 plt.grid(True)
 plt.show()
-
