@@ -103,11 +103,13 @@ class PIDTuningAgent(Agent):
     
     def pull_arm(self):
         if self.first:
+            print("pull first arm")
             K_t = self.actions[int(np.random.uniform(high=self.n_arms)), :]
             self.last_pull = K_t.reshape(3, 1)
             self.last_mapping = self._features_mapping(self.last_pull)
             self.first = False
         elif self.t == self.t_newaction[self.newaction_vect_idx]:
+            print("pull arm")
             K_t, _ = self._estimate_pidtuning_action()
             self.last_pull = K_t.reshape(3, 1)
             self.last_mapping = self._features_mapping(self.last_pull)
@@ -136,6 +138,7 @@ class PIDTuningAgent(Agent):
 
     def update(self, error):
         if self.t == self.t_estimate[self.estimate_vect_idx]:
+            print("update")
             self.V_t = self.V_t + (self.last_mapping @ self.last_mapping.T)
             self.b_vect = self.b_vect + self.last_mapping * error**2
             self.hat_theta_vect = np.linalg.inv(self.V_t) @ self.b_vect
@@ -155,6 +158,7 @@ class PIDTuningAgent(Agent):
     
 
     def _estimate_pidtuning_action(self):
+        print("estimate action")
         bound = self._beta_t_fun_pidtuning()
         obj_vals = np.zeros(self.n_arms)
         for i, act_i in enumerate(self.actions):
