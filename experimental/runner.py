@@ -23,12 +23,12 @@ class Runner:
             print("Simulation ", sim_i)
             self.environment.reset(sim_i)
             self.agent.reset()
-            error_vect = self._run_simulation()
+            error_vect = self._run_simulation(sim_i)
             assert error_vect.shape == (self.horizon,)
             all_errors[sim_i, :] = error_vect
         return all_errors
 
-    def _run_simulation(self):
+    def _run_simulation(self, sim_i):
         error_vect = np.zeros(self.horizon)
         for t in range(self.horizon):
             print("Time ", t)
@@ -47,4 +47,8 @@ class Runner:
             else:
                 self.agent.update(error)
             error_vect[t] = error
+            if(t%10==0 and t!=0):
+                data = np.load("pid_tuning_errors.npy", allow_pickle=True)
+                data[sim_i, t] = error
+                np.save("pid_tuning_errors.npy", data)
         return error_vect

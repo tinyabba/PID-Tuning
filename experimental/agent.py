@@ -92,9 +92,9 @@ class PIDTuningAgent(Agent):
 
     def reset(self):
         super().reset()
-        self.V_t = self.lmbd * np.eye(self.features_dim)            
-        self.b_vect = np.zeros((self.features_dim, 1))              
-        self.hat_theta_vect = np.zeros((self.features_dim, 1))   
+        self.V_t = np.array(self.lmbd * np.eye(self.features_dim), dtype=np.float32)            
+        self.b_vect = np.array(np.zeros((self.features_dim, 1)) , dtype=np.float32)            
+        self.hat_theta_vect = np.array(np.zeros((self.features_dim, 1)), dtype=np.float32)   
         self.first = True
         self.newaction_vect_idx = 0
         self.estimate_vect_idx = 0
@@ -131,7 +131,7 @@ class PIDTuningAgent(Agent):
         for p in self.powers:
             mapping.append(K[0][0]**p[0] * K[1][0]**p[1] * K[2][0]**p[2])
 
-        mapping = np.array(mapping)
+        mapping = np.array(mapping, dtype=np.float32)
         mapping = mapping.reshape(mapping.shape[0], 1)
         return mapping      
 
@@ -160,7 +160,7 @@ class PIDTuningAgent(Agent):
     def _estimate_pidtuning_action(self):
         print("estimate action")
         bound = self._beta_t_fun_pidtuning()
-        obj_vals = np.zeros(self.n_arms)
+        obj_vals = np.array(np.zeros(self.n_arms), dtype=np.float32)
         for i, act_i in enumerate(self.actions):
             act_i = act_i.reshape(3, 1)
             obj_vals[i] = self.hat_theta_vect.T @ self._features_mapping(act_i) - bound * np.sqrt(
