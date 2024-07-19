@@ -37,8 +37,8 @@ class Runner_opt:
             else:
                 error = self.environment.step(action)
             error_vect[t] = error
-            if(t%10==0 and t!=0):
-                data = np.load("optimal_errors.npy", allow_pickle=True)
+            if(t%100==0 and t!=0):
+                data = np.load("optimal_errors1.npy", allow_pickle=True)
                 data[idx, sim_i, t] = error
-                np.save("optimal_errors.npy", data)
+                np.save("optimal_errors1.npy", data)
         return error_vect

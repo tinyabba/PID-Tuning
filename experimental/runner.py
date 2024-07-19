@@ -47,8 +47,8 @@ class Runner:
             else:
                 self.agent.update(error)
             error_vect[t] = error
-            if(t%10==0 and t!=0):
-                data = np.load("pid_tuning_errors.npy", allow_pickle=True)
+            if(t%100==0 and t!=0):
+                data = np.load("pid_tuning_errors1.npy", allow_pickle=True)
                 data[sim_i, t] = error
-                np.save("pid_tuning_errors.npy", data)
+                np.save("pid_tuning_errors1.npy", data)
         return error_vect

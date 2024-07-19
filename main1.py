@@ -51,7 +51,7 @@ out_noise = np.random.normal(0, sigma, (n_trials, horizon, m))
 
 
 #Define range of possible PID parameters
-log_space = np.logspace(0, 1, num=15, base=10)
+log_space = np.logspace(0, 1, num=23, base=10)
 
 K_P_range_start = 0.0
 K_P_range_end = 1.5
@@ -87,7 +87,7 @@ env = PIDTuningEnvironment(A, b, c, n, p, m, y_0, horizon, noise, out_noise, n_t
 print('Running Optimal algorithm')
 
 all_errors = np.zeros((n_arms, n_trials, horizon))
-np.save("optimal_errors.npy", all_errors)
+np.save("optimal_errors1.npy", all_errors)
 all_SSE = np.zeros((n_arms, n_trials))
 K_opt_idx = np.zeros(n_trials)
 K_opt = np.zeros((n_trials, 3, 1))
@@ -140,7 +140,7 @@ phi_bar_a_ub = utils.spectr(bar_A)
 #It saves the error at each time, for each simulation
 #It works even with interruptions
 temp = np.zeros((n_trials, horizon))
-np.save("pid_tuning_errors.npy", temp)
+np.save("pid_tuning_errors1.npy", temp)
 
 
 
