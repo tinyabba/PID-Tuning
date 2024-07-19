@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 
 
 #Open json file
-f = open(f'config/testcase_synt_1.json')
+f = open('config/testcase_synt_1.json')
 param_dict = json.load(f)
 
 horizon = param_dict['horizon']
