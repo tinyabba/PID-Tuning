@@ -103,6 +103,7 @@ for trial_i in range(n_trials):
     K_opt_idx[trial_i] = np.argmin(all_SSE[:, trial_i])
     K_opt[trial_i] = pid_actions[int(K_opt_idx[trial_i])]
     errors[optimal][trial_i,:] = all_errors[int(K_opt_idx[trial_i]), trial_i, :]
+np.save("optimal_errors1.npy", errors[optimal])
 
 
 
