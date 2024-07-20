@@ -153,5 +153,6 @@ env = PIDTuningEnvironment(A, b, c, n, p, m, y_0, horizon, noise, out_noise, n_t
 print('Running PID Tuning')
 runner = Runner(env, agent, n_trials, horizon, 3, n_arms, pid_actions)
 errors[pidtuning] = runner.perform_simulations()
+np.save("pid_tuning_errors1.npy", errors[pidtuning])
 
 

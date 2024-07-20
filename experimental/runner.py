@@ -31,7 +31,7 @@ class Runner:
     def _run_simulation(self, sim_i):
         error_vect = np.zeros(self.horizon)
         for t in range(self.horizon):
-            print("Time ", t)
+            print("Time ", t, ", Simulation ", sim_i)
             action = self.agent.pull_arm()
             if self.action_size > 1:
                 if isinstance(action, np.ndarray):
@@ -47,8 +47,8 @@ class Runner:
             else:
                 self.agent.update(error)
             error_vect[t] = error
-            if(t%100==0 and t!=0):
+            if(t%100==0 or t==self.horizon-1):
                 data = np.load("pid_tuning_errors1.npy", allow_pickle=True)
-                data[sim_i, t] = error
+                data[sim_i] = error_vect
                 np.save("pid_tuning_errors1.npy", data)
         return error_vect
