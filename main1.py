@@ -91,19 +91,19 @@ np.save("optimal_errors1.npy", all_errors)
 all_SSE = np.zeros((n_arms, n_trials))
 K_opt_idx = np.zeros(n_trials)
 K_opt = np.zeros((n_trials, 3, 1))
-i = 0
 for i, K in enumerate(pid_actions):
     print("Running simulation ", i)
     runner_opt = Runner_opt(env, n_trials, horizon, 3, n_arms, pid_actions)
     all_errors[i] = runner_opt.perform_simulations(K, i)
     for trial_i in range(n_trials):
-        all_SSE[i] = np.sum(np.power(all_errors[i, trial_i],2))
-    i += 1
+        all_SSE[i, trial_i] = np.sum(np.power(all_errors[i, trial_i],2))
 for trial_i in range(n_trials):
     K_opt_idx[trial_i] = np.argmin(all_SSE[:, trial_i])
     K_opt[trial_i] = pid_actions[int(K_opt_idx[trial_i])]
     errors[optimal][trial_i,:] = all_errors[int(K_opt_idx[trial_i]), trial_i, :]
 np.save("optimal_errors1.npy", errors[optimal])
+np.save("K_opt_idx_1", K_opt_idx)
+np.save("K_opt_1", K_opt)
 
 
 
@@ -142,6 +142,8 @@ phi_bar_a_ub = utils.spectr(bar_A)
 #It works even with interruptions
 temp = np.zeros((n_trials, horizon))
 np.save("pid_tuning_errors1.npy", temp)
+temp = np.zeros((n_trials, horizon, 3, 1))
+np.save("pulled_arms_1.npy", temp)
 
 
 

@@ -33,6 +33,9 @@ class Runner:
         for t in range(self.horizon):
             print("Time ", t, ", Simulation ", sim_i)
             action = self.agent.pull_arm()
+            data = np.load("pulled_arms_1.npy", allow_pickle=True)
+            data[sim_i, t] = action
+            np.save("pulled_arms_1.npy", data)
             if self.action_size > 1:
                 if isinstance(action, np.ndarray):
                     error = self.environment.step(action.reshape(
