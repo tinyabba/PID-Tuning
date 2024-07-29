@@ -104,6 +104,7 @@ for trial_i in range(n_trials):
 np.save("optimal_errors1.npy", errors[optimal])
 np.save("K_opt_idx_1", K_opt_idx)
 np.save("K_opt_1", K_opt)
+np.save("all_errors_1.npy", all_errors)
 
 
 
