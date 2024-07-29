@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 
 
 #Open json file
-f = open('config/testcase_synt_2.json')
+f = open('config/testcase_synt_4.json')
 param_dict = json.load(f)
 
 horizon = param_dict['horizon']
@@ -87,7 +87,7 @@ env = PIDTuningEnvironment(A, b, c, n, p, m, y_0, horizon, noise, out_noise, n_t
 print('Running Optimal algorithm')
 
 all_errors = np.zeros((n_arms, n_trials, horizon))
-np.save("optimal_errors2.npy", all_errors)
+np.save("optimal_errors4.npy", all_errors)
 all_SSE = np.zeros((n_arms, n_trials))
 K_opt_idx = np.zeros(n_trials)
 K_opt = np.zeros((n_trials, 3, 1))
@@ -101,10 +101,10 @@ for trial_i in range(n_trials):
     K_opt_idx[trial_i] = np.argmin(all_SSE[:, trial_i])
     K_opt[trial_i] = pid_actions[int(K_opt_idx[trial_i])]
     errors[optimal][trial_i,:] = all_errors[int(K_opt_idx[trial_i]), trial_i, :]
-np.save("optimal_errors2.npy", errors[optimal])
-np.save("K_opt_idx_2", K_opt_idx)
-np.save("K_opt_2", K_opt)
-np.save("all_errors_2.npy", all_errors)
+np.save("optimal_errors4.npy", errors[optimal])
+np.save("K_opt_idx_4", K_opt_idx)
+np.save("K_opt_4", K_opt)
+np.save("all_errors_4.npy", all_errors)
 
 
 
@@ -142,9 +142,9 @@ phi_bar_a_ub = utils.spectr(bar_A)
 #It saves the error at each time, for each simulation
 #It works even with interruptions
 temp = np.zeros((n_trials, horizon))
-np.save("pid_tuning_errors2.npy", temp)
+np.save("pid_tuning_errors4.npy", temp)
 temp = np.zeros((n_trials, horizon, 3, 1))
-np.save("pulled_arms_2.npy", temp)
+np.save("pulled_arms_4.npy", temp)
 
 
 
@@ -156,6 +156,6 @@ env = PIDTuningEnvironment(A, b, c, n, p, m, y_0, horizon, noise, out_noise, n_t
 print('Running PID Tuning')
 runner = Runner(env, agent, n_trials, horizon, 3, n_arms, pid_actions)
 errors[pidtuning] = runner.perform_simulations()
-np.save("pid_tuning_errors2.npy", errors[pidtuning])
+np.save("pid_tuning_errors4.npy", errors[pidtuning])
 
 
