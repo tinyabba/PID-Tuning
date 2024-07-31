@@ -52,7 +52,7 @@ out_noise = np.random.normal(0, sigma, (n_trials, horizon*10, m))
 
 
 #Define range of possible PID parameters
-log_space = np.logspace(0, 1, num=100, base=10)
+log_space = np.logspace(0, 1, num=23, base=10)
 
 K_P_range_start = 0.0
 K_P_range_end = 1.5
@@ -74,7 +74,7 @@ K_D_range = (log_space - log_space.min()) / (log_space.max() - log_space.min()) 
 pid_actions = []
 for K in list(itertools.product(K_P_range, K_I_range, K_D_range)):
     bar_A = utils.compute_bar_a(A, b, c, K)
-    if (np.max(np.absolute(np.linalg.eigvals(bar_A))) < 0.3): 
+    if (np.max(np.absolute(np.linalg.eigvals(bar_A))) < 0.4): 
         pid_actions.append(np.array(K).reshape(3,1))
 
 pid_actions = np.array(pid_actions)
