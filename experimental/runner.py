@@ -17,25 +17,27 @@ class Runner:
             assert actions is not None, 'Provide actions'
             assert actions.shape == (n_actions, action_size, 1)
 
-    def perform_simulations(self):
+    def perform_simulations(self, experiment):
         all_errors = np.zeros((self.n_trials, self.horizon))
         for sim_i in tqdm(range(self.n_trials)):
             print("Simulation ", sim_i)
             self.environment.reset(sim_i)
             self.agent.reset()
-            error_vect = self._run_simulation(sim_i)
+            error_vect = self._run_simulation(sim_i, experiment)
             assert error_vect.shape == (self.horizon,)
             all_errors[sim_i, :] = error_vect
         return all_errors
 
-    def _run_simulation(self, sim_i):
+    def _run_simulation(self, sim_i, experiment):
         error_vect = np.zeros(self.horizon)
+        pulled_arms_experiment = f"pulled_arms_{experiment}.npy"
+        pid_tuning_errors_experiment = f"pid_tuning_errors{experiment}.npy"
         for t in range(self.horizon):
             print("Time ", t, ", Simulation ", sim_i)
             action = self.agent.pull_arm()
-            data = np.load("pulled_arms_1.npy", allow_pickle=True)
+            data = np.load(pulled_arms_experiment, allow_pickle=True)
             data[sim_i, t] = action
-            np.save("pulled_arms_1.npy", data)
+            np.save(pulled_arms_experiment, data)
             if self.action_size > 1:
                 if isinstance(action, np.ndarray):
                     error = self.environment.step(action.reshape(
@@ -51,7 +53,7 @@ class Runner:
                 self.agent.update(error)
             error_vect[t] = error
             if(t%100==0 or t==self.horizon-1):
-                data = np.load("pid_tuning_errors1.npy", allow_pickle=True)
+                data = np.load(pid_tuning_errors_experiment, allow_pickle=True)
                 data[sim_i] = error_vect
-                np.save("pid_tuning_errors1.npy", data)
+                np.save(pid_tuning_errors_experiment, data)
         return error_vect

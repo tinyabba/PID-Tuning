@@ -15,6 +15,7 @@ from experimental.runner_opt import Runner_opt
 
 warnings.filterwarnings("ignore")
 
+experiment = 3
 
 #Open json file
 f = open('config/testcase_synt_3.json')
@@ -82,29 +83,33 @@ n_arms = pid_actions.shape[0]
 
 
 #Run optimal algorithm
+optimal_errors_experiment = f"optimal_errors{experiment}.npy"
+K_opt_experiment = f"K_opt_{experiment}.npy"
+K_opt_idx_experiment = f"K_opt_idx_{experiment}.npy"
+all_errors_experiment = f"all_errors_{experiment}.npy"
 
 env = PIDTuningEnvironment(A, b, c, n, p, m, y_0, horizon, noise, out_noise, n_trials)
 print('Running Optimal algorithm')
 
 all_errors = np.zeros((n_arms, n_trials, horizon))
-np.save("optimal_errors1.npy", all_errors)
+np.save(optimal_errors_experiment, all_errors)
 all_SSE = np.zeros((n_arms, n_trials))
 K_opt_idx = np.zeros(n_trials)
 K_opt = np.zeros((n_trials, 3, 1))
 for i, K in enumerate(pid_actions):
     print("Running simulation ", i)
     runner_opt = Runner_opt(env, n_trials, horizon, 3, n_arms, pid_actions)
-    all_errors[i] = runner_opt.perform_simulations(K, i)
+    all_errors[i] = runner_opt.perform_simulations(K, i, experiment)
     for trial_i in range(n_trials):
         all_SSE[i, trial_i] = np.sum(np.power(all_errors[i, trial_i],2))
 for trial_i in range(n_trials):
     K_opt_idx[trial_i] = np.argmin(all_SSE[:, trial_i])
     K_opt[trial_i] = pid_actions[int(K_opt_idx[trial_i])]
     errors[optimal][trial_i,:] = all_errors[int(K_opt_idx[trial_i]), trial_i, :]
-np.save("optimal_errors1.npy", errors[optimal])
-np.save("K_opt_idx_1", K_opt_idx)
-np.save("K_opt_1", K_opt)
-np.save("all_errors_1.npy", all_errors)
+np.save(optimal_errors_experiment, errors[optimal])
+np.save(K_opt_idx_experiment, K_opt_idx)
+np.save(K_opt_experiment, K_opt)
+np.save(all_errors_experiment, all_errors)
 
 
 
@@ -141,10 +146,12 @@ phi_bar_a_ub = utils.spectr(bar_A)
 #Create file for PIDTuning algorithm checkpoints
 #It saves the error at each time, for each simulation
 #It works even with interruptions
+pid_tuning_errors_experiment = f"pid_tuning_errors{experiment}.npy"
+pulled_arms_experiment = f"pulled_arms_{experiment}.npy"
 temp = np.zeros((n_trials, horizon))
-np.save("pid_tuning_errors1.npy", temp)
+np.save(pid_tuning_errors_experiment, temp)
 temp = np.zeros((n_trials, horizon, 3, 1))
-np.save("pulled_arms_1.npy", temp)
+np.save(pulled_arms_experiment, temp)
 
 
 
@@ -155,7 +162,7 @@ agent = PIDTuningAgent(n_arms, pid_actions, horizon,
 env = PIDTuningEnvironment(A, b, c, n, p, m, y_0, horizon, noise, out_noise, n_trials)
 print('Running PID Tuning')
 runner = Runner(env, agent, n_trials, horizon, 3, n_arms, pid_actions)
-errors[pidtuning] = runner.perform_simulations()
-np.save("pid_tuning_errors1.npy", errors[pidtuning])
+errors[pidtuning] = runner.perform_simulations(experiment)
+np.save(pid_tuning_errors_experiment, errors[pidtuning])
 
 

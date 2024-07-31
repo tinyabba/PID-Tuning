@@ -14,16 +14,17 @@ class Runner_opt:
             assert actions is not None, 'Provide actions'
             assert actions.shape == (n_actions, action_size, 1)
 
-    def perform_simulations(self, K, idx):
+    def perform_simulations(self, K, idx, experiment):
         all_errors = np.zeros((self.n_trials, self.horizon))
         for sim_i in range(self.n_trials):
             self.environment.reset(sim_i)
-            error_vect = self._run_simulation(K, idx, sim_i)
+            error_vect = self._run_simulation(K, idx, sim_i, experiment)
             assert error_vect.shape == (self.horizon,)
             all_errors[sim_i, :] = error_vect
         return all_errors
 
-    def _run_simulation(self, K, idx, sim_i):
+    def _run_simulation(self, K, idx, sim_i, experiment):
+        optimal_errors_experiment = f"optimal_errors{experiment}.npy"
         error_vect = np.zeros(self.horizon)
         for t in range(self.horizon):
             action = K
@@ -38,7 +39,7 @@ class Runner_opt:
                 error = self.environment.step(action)
             error_vect[t] = error
             if(t%100==0 or t==self.horizon-1):
-                data = np.load("optimal_errors1.npy", allow_pickle=True)
+                data = np.load(optimal_errors_experiment, allow_pickle=True)
                 data[idx, sim_i] = error_vect
-                np.save("optimal_errors1.npy", data)
+                np.save(optimal_errors_experiment, data)
         return error_vect
