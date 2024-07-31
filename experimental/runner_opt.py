@@ -1,6 +1,6 @@
 import numpy as np
 
-class Runner_Opt:
+class Runner_opt:
 
     def __init__(self, environment, n_trials, horizon,
                  action_size, n_actions, actions=None):
