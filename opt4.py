@@ -16,20 +16,20 @@ from experimental.runner_opt import Runner_opt
 warnings.filterwarnings("ignore")
 
 """
-OPTIMAL ALGORITHM, EXPERIMENT 3:
-    - rho_0 < 0.4
-    - 25 possible PID tuples
-    - noise_sigma = 0.1
-    - horizon = 10000
+OPTIMAL ALGORITHM, EXPERIMENT 4:
+    - rho_0 < 0.3
+    - 26 possible PID tuples
+    - noise_sigma = 0.001
+    - horizon = 100000
 """
 
-experiment = 3
+experiment = 4
 
 #Open json file
-f = open('config/testcase_synt_3.json')
+f = open('config/testcase_synt_4.json')
 param_dict = json.load(f)
 
-horizon = param_dict['horizon']*10
+horizon = param_dict['horizon']
 n_trials = param_dict['n_trials']
 sigma = param_dict['noise_sigma']
 
@@ -60,8 +60,7 @@ out_noise = np.random.normal(0, sigma, (n_trials, horizon, m))
 
 #Define range of possible PID parameters
 print("Defining range of possible PID parameters")
-
-log_space = np.logspace(0, 1, num=23, base=10)
+log_space = np.logspace(0, 1, num=100, base=10)
 
 K_P_range_start = 0.0
 K_P_range_end = 1.5
@@ -79,17 +78,18 @@ K_D_range = (log_space - log_space.min()) / (log_space.max() - log_space.min()) 
       (K_D_range_end - K_D_range_start) + K_D_range_start
 
 
-#Build list of admissible PID parameters
+#Build list of ammissible PID parameters
 print("Building list of admissible PID parameters")
 pid_actions = []
 for K in list(itertools.product(K_P_range, K_I_range, K_D_range)):
     bar_A = utils.compute_bar_a(A, b, c, K)
-    if (np.max(np.absolute(np.linalg.eigvals(bar_A))) < 0.4): 
+    if (np.max(np.absolute(np.linalg.eigvals(bar_A))) < 0.3): 
         pid_actions.append(np.array(K).reshape(3,1))
 
 pid_actions = np.array(pid_actions)
 n_arms = pid_actions.shape[0]
 print("The list of admissible PID parameters contains", n_arms, "elements")
+
 
 
 #Run optimal algorithm
@@ -114,3 +114,5 @@ for trial_i in range(n_trials):
     K_opt[trial_i] = pid_actions[int(K_opt_idx[trial_i])]
     errors[optimal][trial_i,:] = all_errors[int(K_opt_idx[trial_i]), trial_i, :]
 np.savez_compressed(filename, optimal_errors = errors[optimal], K_opt = K_opt, K_opt_idx = K_opt_idx, all_errors = all_errors, pid_actions=pid_actions)
+
+

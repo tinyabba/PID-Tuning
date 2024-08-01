@@ -22,7 +22,7 @@ class Runner_opt:
         return all_errors
 
     def _run_simulation(self, K, idx, sim_i, experiment):
-        optimal_errors_experiment = f"optimal_errors{experiment}.npy"
+        filename = f"experiment_{experiment}.npz"
         error_vect = np.zeros(self.horizon)
         
         # Determine the action type and prepare data loading
@@ -34,7 +34,9 @@ class Runner_opt:
                 action_is_array = False
 
         # Load the data once outside the loop
-        data = np.load(optimal_errors_experiment, allow_pickle=True)
+        loaded = np.load(filename, allow_pickle=True)
+        data = loaded['all_errors']
+        pid_actions = loaded['pid_actions']
         
         for t in range(self.horizon):
             if self.action_size > 1:
@@ -50,6 +52,6 @@ class Runner_opt:
             # Save data at intervals and at the end
             if (t % 100 == 0 or t == self.horizon - 1):
                 data[idx, sim_i] = error_vect
-                np.save(optimal_errors_experiment, data)
+                np.savez_compressed(filename, all_errors = data, pid_actions=pid_actions)
         
         return error_vect

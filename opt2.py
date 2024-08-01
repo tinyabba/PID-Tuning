@@ -15,6 +15,16 @@ from experimental.runner_opt import Runner_opt
 
 warnings.filterwarnings("ignore")
 
+
+"""
+OPTIMAL ALGORITHM, EXPERIMENT 2:
+    - rho_0 < 0.4
+    - 25 possible PID tuples
+    - noise_sigma = 0.01
+    - horizon = 10000
+"""
+
+
 experiment = 2
 
 #Open json file
@@ -40,8 +50,7 @@ y_0 = 1
 #Define dictionary for the errors of the algorithms
 optimal = "optimal"
 pidtuning = "pidtuning"
-ziegler_nichols = "ziegler_nichols"
-alg_list = [optimal, pidtuning, ziegler_nichols]
+alg_list = [optimal, pidtuning]
 errors = {alg: np.zeros((n_trials, horizon)) for alg in alg_list}
 
 #Define noises
@@ -52,6 +61,8 @@ out_noise = np.random.normal(0, sigma, (n_trials, horizon, m))
 
 
 #Define range of possible PID parameters
+print("Defining range of possible PID parameters")
+
 log_space = np.logspace(0, 1, num=23, base=10)
 
 K_P_range_start = 0.0
@@ -70,7 +81,8 @@ K_D_range = (log_space - log_space.min()) / (log_space.max() - log_space.min()) 
       (K_D_range_end - K_D_range_start) + K_D_range_start
 
 
-#Build list of ammissible PID parameters
+#Build list of admissible PID parameters
+print("Building list of admissible PID parameters")
 pid_actions = []
 for K in list(itertools.product(K_P_range, K_I_range, K_D_range)):
     bar_A = utils.compute_bar_a(A, b, c, K)
@@ -79,23 +91,20 @@ for K in list(itertools.product(K_P_range, K_I_range, K_D_range)):
 
 pid_actions = np.array(pid_actions)
 n_arms = pid_actions.shape[0]
-
+print("The list of admissible PID parameters contains", n_arms, "elements")
 
 
 #Run optimal algorithm
-optimal_errors_experiment = f"optimal_errors{experiment}.npy"
-K_opt_experiment = f"K_opt_{experiment}.npy"
-K_opt_idx_experiment = f"K_opt_idx_{experiment}.npy"
-all_errors_experiment = f"all_errors_{experiment}.npy"
+filename = f"experiment_{experiment}.npz"
 
 env = PIDTuningEnvironment(A, b, c, n, p, m, y_0, horizon, noise, out_noise, n_trials)
 print('Running Optimal algorithm')
 
 all_errors = np.zeros((n_arms, n_trials, horizon))
-np.save(optimal_errors_experiment, all_errors)
 all_SSE = np.zeros((n_arms, n_trials))
 K_opt_idx = np.zeros(n_trials)
 K_opt = np.zeros((n_trials, 3, 1))
+np.savez_compressed(filename, all_errors = all_errors, pid_actions = pid_actions)
 for i, K in enumerate(pid_actions):
     print("Running simulation ", i)
     runner_opt = Runner_opt(env, n_trials, horizon, 3, n_arms, pid_actions)
@@ -106,9 +115,7 @@ for trial_i in range(n_trials):
     K_opt_idx[trial_i] = np.argmin(all_SSE[:, trial_i])
     K_opt[trial_i] = pid_actions[int(K_opt_idx[trial_i])]
     errors[optimal][trial_i,:] = all_errors[int(K_opt_idx[trial_i]), trial_i, :]
-np.save(optimal_errors_experiment, errors[optimal])
-np.save(K_opt_idx_experiment, K_opt_idx)
-np.save(K_opt_experiment, K_opt)
-np.save(all_errors_experiment, all_errors)
+np.savez_compressed(filename, optimal_errors = errors[optimal], K_opt = K_opt, K_opt_idx = K_opt_idx, all_errors = all_errors, pid_actions=pid_actions)
+
 
 
