@@ -50,7 +50,8 @@ class Runner_opt:
             error_vect[t] = error
 
             # Save data at intervals and at the end
-            if (t % 100 == 0 or t == self.horizon - 1):
+            if (t % 10000 == 0 or t == self.horizon - 1):
+                print("Time ", t, ", Simulation ", sim_i)
                 data[idx, sim_i] = error_vect
                 np.savez_compressed(filename, all_errors = data, pid_actions=pid_actions)
         
