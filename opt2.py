@@ -15,13 +15,13 @@ from experimental.runner_opt import Runner_opt
 
 warnings.filterwarnings("ignore")
 
-experiment = 3
+experiment = 2
 
 #Open json file
-f = open('config/testcase_synt_3.json')
+f = open('config/testcase_synt_2.json')
 param_dict = json.load(f)
 
-horizon = param_dict['horizon']
+horizon = param_dict['horizon']*10
 n_trials = param_dict['n_trials']
 sigma = param_dict['noise_sigma']
 
@@ -110,59 +110,5 @@ np.save(optimal_errors_experiment, errors[optimal])
 np.save(K_opt_idx_experiment, K_opt_idx)
 np.save(K_opt_experiment, K_opt)
 np.save(all_errors_experiment, all_errors)
-
-
-
-#Upper bound for relevant quantities
-action_max = pid_actions[np.argmax([np.linalg.norm(np.array(K), 2) for K in pid_actions])]
-K_val = np.linalg.norm(action_max, 2)
-b_val = np.linalg.norm(b, 2)
-c_val = np.linalg.norm(c, 2)
-spectral_rad_ub = max(np.linalg.eigvals(A))
-phi_a_ub = utils.spectr(A)
-
-
-#Upper bound for noise
-noise_norm = []
-for trial_i in range(n_trials):
-    for t in range(horizon):
-        noise_norm.append(np.linalg.norm(noise[trial_i, t, :]))
-        noise_norm.append(np.linalg.norm(out_noise[trial_i, t, :]))
-noise_ub = max(np.array(noise_norm))
-
-
-#Upper bound for spectral radius of matrix bar_A
-spectral_rad_list = []
-for K in pid_actions:
-    bar_A = utils.compute_bar_a(A, b, c, K)
-    spectral_rad_list.append(np.max(np.absolute(np.linalg.eigvals(bar_A))))
-
-spectral_rad_bar_ub = np.max(np.array(spectral_rad_list))
-bar_A = utils.compute_bar_a(A, b, c, pid_actions[np.argmax(np.array(spectral_rad_list))])
-phi_bar_a_ub = utils.spectr(bar_A)
-
-
-
-#Create file for PIDTuning algorithm checkpoints
-#It saves the error at each time, for each simulation
-#It works even with interruptions
-pid_tuning_errors_experiment = f"pid_tuning_errors{experiment}.npy"
-pulled_arms_experiment = f"pulled_arms_{experiment}.npy"
-temp = np.zeros((n_trials, horizon))
-np.save(pid_tuning_errors_experiment, temp)
-temp = np.zeros((n_trials, horizon, 3, 1))
-np.save(pulled_arms_experiment, temp)
-
-
-
-#Running PIDTuning
-agent = PIDTuningAgent(n_arms, pid_actions, horizon,
-                            np.log(horizon), b_val, c_val, K_val, phi_a_ub, phi_bar_a_ub, y_0,
-                            spectral_rad_ub, spectral_rad_bar_ub, noise_ub, sigma)
-env = PIDTuningEnvironment(A, b, c, n, p, m, y_0, horizon, noise, out_noise, n_trials)
-print('Running PID Tuning')
-runner = Runner(env, agent, n_trials, horizon, 3, n_arms, pid_actions)
-errors[pidtuning] = runner.perform_simulations(experiment)
-np.save(pid_tuning_errors_experiment, errors[pidtuning])
 
 
