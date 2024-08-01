@@ -51,7 +51,7 @@ class Runner_opt:
 
             # Save data at intervals and at the end
             if (t % 10000 == 0 or t == self.horizon - 1):
-                print("Time ", t, ", Simulation ", sim_i)
+                print("Arm", idx, "Time", t, ", Simulation", sim_i)
                 data[idx, sim_i] = error_vect
                 np.savez_compressed(filename, all_errors = data, pid_actions=pid_actions)
         
