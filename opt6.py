@@ -24,6 +24,7 @@ OPTIMAL ALGORITHM, EXPERIMENT 6:
 """
 
 experiment = 6
+rho_0 = 0.4
 
 #Open json file
 f = open('config/testcase_synt_1.json')
@@ -83,7 +84,7 @@ print("Building list of admissible PID parameters")
 pid_actions = []
 for K in list(itertools.product(K_P_range, K_I_range, K_D_range)):
     bar_A = utils.compute_bar_a(A, b, c, K)
-    if (np.max(np.absolute(np.linalg.eigvals(bar_A))) < 0.3): 
+    if (np.max(np.absolute(np.linalg.eigvals(bar_A))) < rho_0): 
         pid_actions.append(np.array(K).reshape(3,1))
 
 pid_actions = np.array(pid_actions)
