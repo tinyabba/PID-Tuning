@@ -18,7 +18,7 @@ warnings.filterwarnings("ignore")
 """
 PIDTUNING ALGORITHM, EXPERIMENT 14:
     - rho_0 < 0.4
-    - 20 possible PID tuples
+    - 24 possible PID tuples
     - noise_sigma = 0.001
     - horizon = 10000
     - testcase 5
@@ -63,20 +63,20 @@ out_noise = np.random.normal(0, sigma, (n_trials, horizon, m))
 
 #Define range of possible PID parameters
 print("Defining range of possible PID parameters")
-log_space = np.logspace(0, 1, num=13, base=10)
+log_space = np.logspace(0, 1, num=25, base=10)
 
 K_P_range_start = 0.0
-K_P_range_end = 2.0
+K_P_range_end = 1.7
 K_P_range = (log_space - log_space.min()) / (log_space.max() - log_space.min()) *\
       (K_P_range_end - K_P_range_start) + K_P_range_start
 
 K_I_range_start = 0.0
-K_I_range_end = 2.0
+K_I_range_end = 2.3
 K_I_range = (log_space - log_space.min()) / (log_space.max() - log_space.min()) *\
       (K_I_range_end - K_I_range_start) + K_I_range_start
 
 K_D_range_start = 0.0
-K_D_range_end = 0.07
+K_D_range_end = 0.8
 K_D_range = (log_space - log_space.min()) / (log_space.max() - log_space.min()) *\
       (K_D_range_end - K_D_range_start) + K_D_range_start
 
