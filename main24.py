@@ -16,23 +16,23 @@ from experimental.runner_opt import Runner_opt
 warnings.filterwarnings("ignore")
 
 """
-PIDTUNING ALGORITHM, EXPERIMENT 21 (17bis):
-    - rho_0 < 0.4
+PIDTUNING ALGORITHM, EXPERIMENT 24:
+    - rho_0 < 0.3
     - 28 possible PID tuples
     - noise_sigma = 0.001
     - horizon = 50000
-    - testcase 7
+    - testcase 6
 """
 
-experiment = 21
-rho_0 = 0.4
-testcase = 7
+experiment = 24
+rho_0 = 0.3
+testcase = 6
 
 #Open json file
 f = open(f'config/testcase_synt_{testcase}.json')
 param_dict = json.load(f)
 
-horizon = param_dict['horizon']
+horizon = 50000
 n_trials = param_dict['n_trials']
 sigma = param_dict['noise_sigma']
 
@@ -63,15 +63,15 @@ out_noise = np.random.normal(0, sigma, (n_trials, horizon, m))
 
 #Define range of possible PID parameters
 print("Defining range of possible PID parameters")
-log_space = np.logspace(0, 1, num=25, base=10)
+log_space = np.logspace(0, 1, num=65, base=10)
 
 K_P_range_start = 0.0
-K_P_range_end = 1.77
+K_P_range_end = 2.0
 K_P_range = (log_space - log_space.min()) / (log_space.max() - log_space.min()) *\
       (K_P_range_end - K_P_range_start) + K_P_range_start
 
 K_I_range_start = 0.0
-K_I_range_end = 2.3
+K_I_range_end = 2.0
 K_I_range = (log_space - log_space.min()) / (log_space.max() - log_space.min()) *\
       (K_I_range_end - K_I_range_start) + K_I_range_start
 

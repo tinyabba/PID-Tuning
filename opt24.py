@@ -16,23 +16,23 @@ from experimental.runner_opt import Runner_opt
 warnings.filterwarnings("ignore")
 
 """
-PIDTUNING ALGORITHM, EXPERIMENT 21 (17bis):
-    - rho_0 < 0.4
+OPTIMAL ALGORITHM, EXPERIMENT 24:
+    - rho_0 < 0.3
     - 28 possible PID tuples
     - noise_sigma = 0.001
-    - horizon = 50000
-    - testcase 7
+    - horizon = 100000
+    - testcase 6
 """
 
-experiment = 21
-rho_0 = 0.4
-testcase = 7
+experiment = 24
+rho_0 = 0.3
+testcase = 6
 
 #Open json file
 f = open(f'config/testcase_synt_{testcase}.json')
 param_dict = json.load(f)
 
-horizon = param_dict['horizon']
+horizon = 100000
 n_trials = param_dict['n_trials']
 sigma = param_dict['noise_sigma']
 
@@ -63,15 +63,15 @@ out_noise = np.random.normal(0, sigma, (n_trials, horizon, m))
 
 #Define range of possible PID parameters
 print("Defining range of possible PID parameters")
-log_space = np.logspace(0, 1, num=25, base=10)
+log_space = np.logspace(0, 1, num=65, base=10)
 
 K_P_range_start = 0.0
-K_P_range_end = 1.77
+K_P_range_end = 2.0
 K_P_range = (log_space - log_space.min()) / (log_space.max() - log_space.min()) *\
       (K_P_range_end - K_P_range_start) + K_P_range_start
 
 K_I_range_start = 0.0
-K_I_range_end = 2.3
+K_I_range_end = 2.0
 K_I_range = (log_space - log_space.min()) / (log_space.max() - log_space.min()) *\
       (K_I_range_end - K_I_range_start) + K_I_range_start
 
@@ -98,56 +98,27 @@ print("Max D parameter:", np.max(pid_actions[:,2,:]))
 
 
 
-#Upper bound for relevant quantities
-action_max = pid_actions[np.argmax([np.linalg.norm(np.array(K), 2) for K in pid_actions])]
-K_val = np.linalg.norm(action_max, 2)
-b_val = np.linalg.norm(b, 2)
-c_val = np.linalg.norm(c, 2)
-spectral_rad_ub = max(np.linalg.eigvals(A))
-phi_a_ub = utils.spectr(A)
+#Run optimal algorithm
+filename = f"experiment_{experiment}.npz"
 
-
-#Upper bound for noise
-noise_norm = []
-for trial_i in range(n_trials):
-    for t in range(horizon):
-        noise_norm.append(np.linalg.norm(noise[trial_i, t, :]))
-        noise_norm.append(np.linalg.norm(out_noise[trial_i, t, :]))
-noise_ub = max(np.array(noise_norm))
-
-
-#Upper bound for spectral radius of matrix bar_A
-spectral_rad_list = []
-for K in pid_actions:
-    bar_A = utils.compute_bar_a(A, b, c, K)
-    spectral_rad_list.append(np.max(np.absolute(np.linalg.eigvals(bar_A))))
-
-spectral_rad_bar_ub = np.max(np.array(spectral_rad_list))
-bar_A = utils.compute_bar_a(A, b, c, pid_actions[np.argmax(np.array(spectral_rad_list))])
-phi_bar_a_ub = utils.spectr(bar_A)
-
-
-
-#Create file for PIDTuning algorithm checkpoints
-#It saves the error at each time, for each simulation
-#It works even with interruptions
-pid_tuning_errors_experiment = f"pid_tuning_errors{experiment}.npy"
-pulled_arms_experiment = f"pulled_arms_{experiment}.npy"
-temp = np.zeros((n_trials, horizon))
-np.save(pid_tuning_errors_experiment, temp)
-temp = np.zeros((n_trials, horizon, 3, 1))
-np.save(pulled_arms_experiment, temp)
-
-
-
-#Running PIDTuning
-agent = PIDTuningAgent(n_arms, pid_actions, horizon,
-                            np.log(horizon), b_val, c_val, K_val, phi_a_ub, phi_bar_a_ub, y_0,
-                            spectral_rad_ub, spectral_rad_bar_ub, noise_ub, sigma)
 env = PIDTuningEnvironment(A, b, c, n, p, m, y_0, horizon, noise, out_noise, n_trials)
-print('Running PID Tuning')
-runner = Runner(env, agent, n_trials, horizon, 3, n_arms, pid_actions)
-errors[pidtuning] = runner.perform_simulations(experiment)
-np.save(pid_tuning_errors_experiment, errors[pidtuning])
+print('Running Optimal algorithm')
+
+all_errors = np.zeros((n_arms, n_trials, horizon))
+all_SSE = np.zeros((n_arms, n_trials))
+K_opt_idx = np.zeros(n_trials)
+K_opt = np.zeros((n_trials, 3, 1))
+np.savez_compressed(filename, all_errors = all_errors, pid_actions = pid_actions)
+for i, K in enumerate(pid_actions):
+    print("Running simulation ", i)
+    runner_opt = Runner_opt(env, n_trials, horizon, 3, n_arms, pid_actions)
+    all_errors[i] = runner_opt.perform_simulations(K, i, experiment)
+    for trial_i in range(n_trials):
+        all_SSE[i, trial_i] = np.sum(np.power(all_errors[i, trial_i],2))
+for trial_i in range(n_trials):
+    K_opt_idx[trial_i] = np.argmin(all_SSE[:, trial_i])
+    K_opt[trial_i] = pid_actions[int(K_opt_idx[trial_i])]
+    errors[optimal][trial_i,:] = all_errors[int(K_opt_idx[trial_i]), trial_i, :]
+np.savez_compressed(filename, optimal_errors = errors[optimal], K_opt = K_opt, K_opt_idx = K_opt_idx, all_errors = all_errors, pid_actions=pid_actions)
 
 
