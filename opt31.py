@@ -20,7 +20,7 @@ OPTIMAL ALGORITHM, EXPERIMENT 31:
     - rho_0 <= 0.3
     - 22 possible PID tuples
     - noise_sigma = 0.001
-    - horizon = 20000
+    - horizon = 100000
     - testcase 5
 """
 
@@ -32,7 +32,7 @@ testcase = 5
 f = open(f'config/testcase_synt_{testcase}.json')
 param_dict = json.load(f)
 
-horizon = 20000
+horizon = 100000
 n_trials = param_dict['n_trials']
 sigma = param_dict['noise_sigma']
 
