@@ -52,7 +52,7 @@ class Runner:
             else:
                 self.agent.update(error)
             error_vect[t] = error
-            if(t%1000==0 or t==self.horizon-1):
+            if(t%10000==0 or t==self.horizon-1):
                 data = np.load(pid_tuning_errors_experiment, allow_pickle=True)
                 data[sim_i] = error_vect
                 np.save(pid_tuning_errors_experiment, data)
