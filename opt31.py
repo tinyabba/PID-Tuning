@@ -63,15 +63,15 @@ out_noise = np.random.normal(0, sigma, (n_trials, horizon, m))
 
 #Define range of possible PID parameters
 print("Defining range of possible PID parameters")
-log_space = np.logspace(0, 1, num=65, base=10)
+log_space = np.logspace(0, 1, num=80, base=10)
 
 K_P_range_start = 0.0
-K_P_range_end = 2.0
+K_P_range_end = 1.8
 K_P_range = (log_space - log_space.min()) / (log_space.max() - log_space.min()) *\
       (K_P_range_end - K_P_range_start) + K_P_range_start
 
 K_I_range_start = 0.0
-K_I_range_end = 2.0
+K_I_range_end = 2.3
 K_I_range = (log_space - log_space.min()) / (log_space.max() - log_space.min()) *\
       (K_I_range_end - K_I_range_start) + K_I_range_start
 
