@@ -16,15 +16,15 @@ from experimental.runner_opt import Runner_opt
 warnings.filterwarnings("ignore")
 
 """
-PIDTUNING ALGORITHM, EXPERIMENT 32 (19.4):
+PIDTUNING ALGORITHM, EXPERIMENT 28 (19bisbis):
     - rho_0 < 0.4
     - 29 possible PID tuples
-    - noise_sigma = 0.01
-    - horizon = 50000
+    - noise_sigma = 0.001
+    - horizon = 20000
     - testcase 6
 """
 
-experiment = 32
+experiment = 40
 rho_0 = 0.4
 testcase = 6
 
@@ -32,9 +32,9 @@ testcase = 6
 f = open(f'config/testcase_synt_{testcase}.json')
 param_dict = json.load(f)
 
-horizon = 50000
+horizon = 20000
 n_trials = param_dict['n_trials']
-sigma = 0.01
+sigma = param_dict['noise_sigma']
 
 n = param_dict['n']
 p = param_dict['p']
@@ -52,7 +52,7 @@ y_0 = 1
 optimal = "optimal"
 pidtuning = "pidtuning"
 alg_list = [optimal, pidtuning]
-errors = {alg: np.zeros((8, horizon)) for alg in alg_list}
+errors = {alg: np.zeros((2, horizon)) for alg in alg_list}
 
 #Define noises
 np.random.seed(1)
@@ -133,9 +133,9 @@ phi_bar_a_ub = utils.spectr(bar_A)
 #It works even with interruptions
 pid_tuning_errors_experiment = f"pid_tuning_errors{experiment}.npy"
 pulled_arms_experiment = f"pulled_arms_{experiment}.npy"
-temp = np.zeros((8, horizon))
+temp = np.zeros((2, horizon))
 np.save(pid_tuning_errors_experiment, temp)
-temp = np.zeros((8, horizon, 3, 1))
+temp = np.zeros((2, horizon, 3, 1))
 np.save(pulled_arms_experiment, temp)
 
 
@@ -144,9 +144,9 @@ np.save(pulled_arms_experiment, temp)
 agent = PIDTuningAgent(n_arms, pid_actions, horizon,
                             np.log(horizon), b_val, c_val, K_val, phi_a_ub, phi_bar_a_ub, y_0,
                             spectral_rad_ub, spectral_rad_bar_ub, noise_ub, sigma)
-env = PIDTuningEnvironment(A, b, c, n, p, m, y_0, horizon, noise[2:,:,:], out_noise[2:,:,:], 8)
+env = PIDTuningEnvironment(A, b, c, n, p, m, y_0, horizon, noise[8:,:,:], out_noise[8:,:,:], 2)
 print('Running PID Tuning')
-runner = Runner(env, agent, 8, horizon, 3, n_arms, pid_actions)
+runner = Runner(env, agent, 2, horizon, 3, n_arms, pid_actions)
 errors[pidtuning] = runner.perform_simulations(experiment)
 np.save(pid_tuning_errors_experiment, errors[pidtuning])
 
