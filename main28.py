@@ -16,7 +16,7 @@ from experimental.runner_opt import Runner_opt
 warnings.filterwarnings("ignore")
 
 """
-PIDTUNING ALGORITHM, EXPERIMENT 28 (19bisbis):
+PIDTUNING ALGORITHM, EXPERIMENT 28:
     - rho_0 < 0.4
     - 29 possible PID tuples
     - noise_sigma = 0.001
@@ -128,9 +128,7 @@ phi_bar_a_ub = utils.spectr(bar_A)
 
 
 
-#Create file for PIDTuning algorithm checkpoints
-#It saves the error at each time, for each simulation
-#It works even with interruptions
+#Create file for PIDTuning algorithm
 pid_tuning_errors_experiment = f"pid_tuning_errors{experiment}.npy"
 pulled_arms_experiment = f"pulled_arms_{experiment}.npy"
 temp = np.zeros((n_trials, horizon))
